@@ -4,77 +4,210 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simulador Financiero de Obra - Guatemala</title>
-    <script src="https://tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #f3f4f6;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            padding: 24px;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            max-w: 768px;
+            width: 100%;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            padding: 24px;
+            border: 1px solid #e5e7eb;
+            box-sizing: border-box;
+        }
+        h2 {
+            text-align: center;
+            color: #1f2937;
+            margin-top: 0;
+            margin-bottom: 8px;
+            font-size: 24px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+        @media (min-width: 768px) {
+            .grid { grid-template-columns: 1fr 1fr; }
+        }
+        .input-group {
+            margin-bottom: 16px;
+        }
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 6px;
+        }
+        input[type="number"], select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        input[type="range"] {
+            width: 100%;
+            margin-bottom: 4px;
+        }
+        .value-label {
+            font-size: 12px;
+            color: #6b7280;
+        }
+        .results-box {
+            background-color: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .results-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1e3a8a;
+            margin-top: 0;
+            margin-bottom: 16px;
+            border-bottom: 1px solid #bfdbfe;
+            padding-bottom: 8px;
+        }
+        .row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+        .text-gray { color: #4b5563; }
+        .text-red { color: #dc2626; font-weight: 600; }
+        .text-amber { color: #d97706; font-weight: 600; }
+        .text-bold { font-weight: 600; color: #111827; }
+        hr {
+            border: 0;
+            border-top: 1px solid #bfdbfe;
+            margin: 16px 0;
+        }
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 16px;
+            font-weight: bold;
+            color: #1f2937;
+        }
+        .alert-box {
+            background-color: #fef3c7;
+            border: 1px solid #fde68a;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            margin-top: 24px;
+        }
+        .alert-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #92400e;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 0 0 4px 0;
+        }
+        .alert-value {
+            font-size: 20px;
+            font-weight: 900;
+            color: #78350f;
+            margin: 0;
+        }
+        .alert-desc {
+            font-size: 10px;
+            color: #b45309;
+            margin: 4px 0 0 0;
+        }
+    </style>
 </head>
-<body class="bg-gray-50 p-6 font-sans">
+<body>
 
-    <div class="max-w-3xl mx-auto bg-white rounded-xl shadow-md p-6 border border-gray-100">
-        <h2 class="text-2xl font-bold text-gray-800 mb-2 text-center">🇬🇹 Simulador Financiero de Obra</h2>
-        <p class="text-gray-500 text-sm text-center mb-6">Calcula el flujo de caja necesario frente a retenciones y retrasos corporativos.</p>
+    <div class="container">
+        <h2>🇬🇹 Simulador Financiero de Obra</h2>
+        <div class="subtitle">Calcula el flujo de caja necesario frente a retenciones y retrasos corporativos.</div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="grid">
             <!-- Controles / Inputs -->
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Costo Total del Proyecto (GTQ)</label>
-                    <input type="number" id="costoTotal" value="150000" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500" oninput="calcular()">
+            <div>
+                <div class="input-group">
+                    <label>Costo Total del Proyecto (GTQ)</label>
+                    <input type="number" id="costoTotal" value="150000" oninput="calcular()">
                 </div>
 
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">% Honorarios del Arquitecto</label>
-                    <input type="range" id="porcentajeHonorarios" min="5" max="25" value="15" class="w-full" oninput="calcular()">
-                    <span class="text-xs text-gray-500" id="lblHonorarios">15%</span>
+                <div class="input-group">
+                    <label>% Honorarios del Arquitecto</label>
+                    <input type="range" id="porcentajeHonorarios" min="5" max="25" value="15" oninput="calcular()">
+                    <div class="value-label" id="lblHonorarios">15%</div>
                 </div>
 
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Días de Atraso en Pagos del Cliente</label>
-                    <input type="range" id="diasAtraso" min="15" max="90" value="45" step="15" class="w-full" oninput="calcular()">
-                    <span class="text-xs text-gray-500" id="lblAtraso">45 días</span>
+                <div class="input-group">
+                    <label>Días de Atraso en Pagos del Cliente</label>
+                    <input type="range" id="diasAtraso" min="15" max="90" value="45" step="15" oninput="calcular()">
+                    <div class="value-label" id="lblAtraso">45 días</div>
                 </div>
 
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">% Retención de ISR (Ley)</label>
-                    <select id="isr" class="w-full p-2 border rounded-lg" onchange="calcular()">
+                <div class="input-group">
+                    <label>% Retención de ISR (Ley)</label>
+                    <select id="isr" onchange="calcular()">
                         <option value="0.05">5% (Hasta Q30,000)</option>
                         <option value="0.07" selected>7% (Sobre el excedente)</option>
                     </select>
                 </div>
 
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">% Fondo de Garantía Retenido</label>
-                    <input type="range" id="fondoGarantia" min="0" max="15" value="10" class="w-full" oninput="calcular()">
-                    <span class="text-xs text-gray-500" id="lblGarantia">10%</span>
+                <div class="input-group">
+                    <label>% Fondo de Garantía Retenido</label>
+                    <input type="range" id="fondoGarantia" min="0" max="15" value="10" oninput="calcular()">
+                    <div class="value-label" id="lblGarantia">10%</div>
                 </div>
             </div>
 
             <!-- Resultados -->
-            <div class="bg-blue-50 rounded-xl p-5 flex flex-col justify-between border border-blue-100">
-                <h3 class="text-lg font-bold text-blue-900 mb-4 border-b border-blue-200 pb-2">Análisis de Viabilidad</h3>
-                
-                <div class="space-y-3">
-                    <div class="flex justify-between text-sm">
-                        <span class="text-gray-600">Honorarios Brutos:</span>
-                        <span class="font-semibold text-gray-900" id="resHonorarios">Q0.00</span>
+            <div class="results-box">
+                <div>
+                    <div class="results-title">Análisis de Viabilidad</div>
+                    
+                    <div class="row">
+                        <span class="text-gray">Honorarios Brutos:</span>
+                        <span class="text-bold" id="resHonorarios">Q0.00</span>
                     </div>
-                    <div class="flex justify-between text-sm text-red-600">
+                    <div class="row text-red">
                         <span>Retención ISR Estimada:</span>
-                        <span class="font-semibold" id="resIsr">-Q0.00</span>
+                        <span id="resIsr">-Q0.00</span>
                     </div>
-                    <div class="flex justify-between text-sm text-amber-600">
+                    <div class="row text-amber">
                         <span>Fondo Garantía Congelado:</span>
-                        <span class="font-semibold" id="resFondo">-Q0.00</span>
+                        <span id="resFondo">-Q0.00</span>
                     </div>
-                    <hr class="border-blue-200">
-                    <div class="flex justify-between text-base font-bold text-gray-800">
+                    <hr>
+                    <div class="total-row">
                         <span>Utilidad Neta Inicial:</span>
                         <span id="resUtilidad">Q0.00</span>
                     </div>
                 </div>
 
-                <div class="mt-6 bg-amber-100 border border-amber-200 rounded-lg p-3 text-center">
-                    <p class="text-xs font-semibold text-amber-800 uppercase tracking-wider mb-1">Fondo de Maniobra Crítico</p>
-                    <p class="text-xl font-black text-amber-900" id="resManiobra">Q0.00</p>
-                    <p class="text-[10px] text-amber-700 mt-1">Capital propio mínimo para cubrir planillas y materiales durante el atraso.</p>
+                <div class="alert-box">
+                    <p class="alert-title">Fondo de Maniobra Crítico</p>
+                    <p class="alert-value" id="resManiobra">Q0.00</p>
+                    <p class="alert-desc">Capital propio mínimo para cubrir planillas y materiales durante el atraso.</p>
                 </div>
             </div>
         </div>
@@ -82,22 +215,19 @@
 
     <script>
         function calcular() {
-            // Obtener valores
             const costoTotal = parseFloat(document.getElementById('costoTotal').value) || 0;
             const pctHonorarios = parseFloat(document.getElementById('porcentajeHonorarios').value) / 100;
             const diasAtraso = parseInt(document.getElementById('diasAtraso').value);
             const pctIsr = parseFloat(document.getElementById('isr').value);
             const pctGarantia = parseFloat(document.getElementById('fondoGarantia').value) / 100;
 
-            // Actualizar etiquetas visuales
             document.getElementById('lblHonorarios').innerText = (pctHonorarios * 100) + '%';
             document.getElementById('lblAtraso').innerText = diasAtraso + ' días';
             document.getElementById('lblGarantia').innerText = (pctGarantia * 100) + '%';
 
-            // Cálculos financieros
             const honorariosBrutos = costoTotal * pctHonorarios;
             
-            // Cálculo simplificado ISR Guatemalteco
+            // Cálculo del ISR Guatemalteco sobre la factura total (Régimen Opcional Simplificado)
             let retencionIsr = 0;
             if (costoTotal > 30000) {
                 retencionIsr = (30000 * 0.05) + ((costoTotal - 30000) * pctIsr);
@@ -108,23 +238,29 @@
             const retencionGarantia = costoTotal * pctGarantia;
             const utilidadNeta = honorariosBrutos - retencionIsr - retencionGarantia;
 
-            // Fondo de maniobra requerido para sobrevivir al atraso (Costo operativo diario * días de atraso)
+            // Fondo de maniobra: costo operativo total distribuido en 60 días de obra estándar, multiplicado por los días de atraso
             const costoOperativoObra = costoTotal - honorariosBrutos;
-            const costoPorDia = costoOperativoObra / 60; // Asumiendo obra estándar de 2 meses
+            const costoPorDia = costoOperativoObra / 60; 
             const fondoManiobra = costoPorDia * diasAtraso;
 
-            // Formatear a Quetzales
             const formatoMoneda = new Intl.NumberFormat('es-GT', { style: 'currency', currency: 'GTQ' });
 
-            // Renderizar resultados
             document.getElementById('resHonorarios').innerText = formatoMoneda.format(honorariosBrutos);
             document.getElementById('resIsr').innerText = '-' + formatoMoneda.format(retencionIsr);
             document.getElementById('resFondo').innerText = '-' + formatoMoneda.format(retencionGarantia);
-            document.getElementById('resUtilidad').innerText = formatoMoneda.format(utilidadNeta);
+            
+            // Estilo visual si la utilidad neta es negativa (pérdida de flujo de caja inicial)
+            const elUtilidad = document.getElementById('resUtilidad');
+            elUtilidad.innerText = formatoMoneda.format(utilidadNeta);
+            if(utilidadNeta < 0) {
+                elUtilidad.style.color = '#dc2626';
+            } else {
+                elUtilidad.style.color = '#10b981';
+            }
+
             document.getElementById('resManiobra').innerText = formatoMoneda.format(fondoManiobra);
         }
 
-        // Ejecutar cálculo inicial
         calcular();
     </script>
 </body>

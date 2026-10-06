@@ -308,7 +308,7 @@
             reconocimiento = new SpeechRecognition();
             reconocimiento.continuous = true;
             reconocimiento.interimResults = true;
-            reconocimiento.lang = 'es-GT';
+            reconocimiento.lang = 'es-ES';
 
             reconocimiento.onresult = (event) => {
                 let textoFinal = '';
@@ -373,7 +373,8 @@
             const lineasTexto = doc.splitTextToSize(texto || "No se registraron anotaciones.", 180);
             doc.text(lineasTexto, 14, 63);
 
-            doc.save(`Reporte_Obra_${obra.replace(/\s+/g, '_')}.pdf`);
+            window.open(doc.output('bloburl'), '_blank');
+
         }
 
         // Ejecución automática inicial

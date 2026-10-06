@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador Financiero de Obra - Guatemala</title>
+    <title>ArquiGuate Pro - Suite de Gestión</title>
+    <!-- Librería oficial para generar el archivo PDF desde el navegador -->
+    <script src="https://cloudflare.com"></script>
     <style>
         body {
             background-color: #f3f4f6;
@@ -14,27 +16,55 @@
             justify-content: center;
         }
         .container {
-            max-w: 768px;
+            max-width: 850px;
             width: 100%;
             background-color: #ffffff;
             border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             padding: 24px;
             border: 1px solid #e5e7eb;
             box-sizing: border-box;
         }
-        h2 {
+        h1 {
             text-align: center;
-            color: #1f2937;
+            color: #111827;
             margin-top: 0;
-            margin-bottom: 8px;
-            font-size: 24px;
+            margin-bottom: 4px;
+            font-size: 26px;
         }
-        .subtitle {
+        .app-desc {
             text-align: center;
             color: #6b7280;
             font-size: 14px;
             margin-bottom: 24px;
+        }
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #e5e7eb;
+            margin-bottom: 24px;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            background: none;
+            border: none;
+            font-size: 15px;
+            font-weight: 600;
+            color: #6b7280;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tab-btn.active {
+            color: #2563eb;
+            border-bottom: 2px solid #2563eb;
+            margin-bottom: -2px;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
         }
         .grid {
             display: grid;
@@ -44,9 +74,7 @@
         @media (min-width: 768px) {
             .grid { grid-template-columns: 1fr 1fr; }
         }
-        .input-group {
-            margin-bottom: 16px;
-        }
+        .input-group { margin-bottom: 16px; }
         label {
             display: block;
             font-size: 14px;
@@ -54,22 +82,17 @@
             color: #374151;
             margin-bottom: 6px;
         }
-        input[type="number"], select {
+        input[type="number"], select, input[type="text"] {
             width: 100%;
-            padding: 8px 12px;
+            padding: 10px 12px;
             border: 1px solid #d1d5db;
             border-radius: 8px;
             box-sizing: border-box;
             font-size: 14px;
         }
-        input[type="range"] {
-            width: 100%;
-            margin-bottom: 4px;
-        }
-        .value-label {
-            font-size: 12px;
-            color: #6b7280;
-        }
+        input[type="range"] { width: 100%; margin-bottom: 4px; }
+        .value-label { font-size: 12px; color: #6b7280; }
+
         .results-box {
             background-color: #eff6ff;
             border: 1px solid #bfdbfe;
@@ -83,33 +106,14 @@
             font-size: 18px;
             font-weight: bold;
             color: #1e3a8a;
-            margin-top: 0;
             margin-bottom: 16px;
             border-bottom: 1px solid #bfdbfe;
             padding-bottom: 8px;
         }
-        .row {
-            display: flex;
-            justify-content: space-between;
-            font-size: 14px;
-            margin-bottom: 12px;
-        }
-        .text-gray { color: #4b5563; }
+        .row { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 12px; }
         .text-red { color: #dc2626; font-weight: 600; }
         .text-amber { color: #d97706; font-weight: 600; }
         .text-bold { font-weight: 600; color: #111827; }
-        hr {
-            border: 0;
-            border-top: 1px solid #bfdbfe;
-            margin: 16px 0;
-        }
-        .total-row {
-            display: flex;
-            justify-content: space-between;
-            font-size: 16px;
-            font-weight: bold;
-            color: #1f2937;
-        }
         .alert-box {
             background-color: #fef3c7;
             border: 1px solid #fde68a;
@@ -118,102 +122,151 @@
             text-align: center;
             margin-top: 24px;
         }
-        .alert-title {
-            font-size: 12px;
-            font-weight: 600;
-            color: #92400e;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin: 0 0 4px 0;
+        .alert-value { font-size: 20px; font-weight: 900; color: #78350f; margin: 0; }
+        .voice-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
         }
-        .alert-value {
-            font-size: 20px;
-            font-weight: 900;
-            color: #78350f;
-            margin: 0;
+        textarea {
+            width: 100%;
+            height: 180px;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            resize: none;
+            font-size: 14px;
+            box-sizing: border-box;
         }
-        .alert-desc {
-            font-size: 10px;
-            color: #b45309;
-            margin: 4px 0 0 0;
+        .btn-panel {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+        }
+        .btn {
+            flex: 1;
+            padding: 14px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background 0.2s;
+        }
+        .btn-mic { background-color: #dc2626; color: white; }
+        .btn-mic:hover { background-color: #b91c1c; }
+        .btn-mic.recording { background-color: #10b981; animation: pulse 1.5s infinite; }
+        .btn-pdf { background-color: #1e3a8a; color: white; }
+        .btn-pdf:hover { background-color: #1e40af; }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h2>🇬🇹 Simulador Financiero de Obra</h2>
-        <div class="subtitle">Calcula el flujo de caja necesario frente a retenciones y retrasos corporativos.</div>
+        <h1>🇬🇹 ArquiGuate Pro</h1>
+        <div class="app-desc">Herramientas inteligentes de gestión para arquitectos y constructores.</div>
 
-        <div class="grid">
-            <!-- Controles / Inputs -->
-            <div>
-                <div class="input-group">
-                    <label>Costo Total del Proyecto (GTQ)</label>
-                    <input type="number" id="costoTotal" value="150000" oninput="calcular()">
+        <!-- Pestañas de Navegación -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('simulador')">💰 Simulador Financiero</button>
+            <button class="tab-btn" onclick="switchTab('reportes')">🎙️ Reporte por Voz (IA)</button>
+        </div>
+
+        <!-- PESTAÑA 1: SIMULADOR FINANCIERO -->
+        <div id="tab-simulador" class="tab-content active">
+            <div class="grid">
+                <div>
+                    <div class="input-group">
+                        <label>Costo Total del Proyecto (GTQ)</label>
+                        <input type="number" id="costoTotal" value="150000" oninput="calcular()">
+                    </div>
+                    <div class="input-group">
+                        <label>% Honorarios del Arquitecto</label>
+                        <input type="range" id="porcentajeHonorarios" min="5" max="25" value="15" oninput="calcular()">
+                        <div class="value-label" id="lblHonorarios">15%</div>
+                    </div>
+                    <div class="input-group">
+                        <label>Días de Atraso en Pagos del Cliente</label>
+                        <input type="range" id="diasAtraso" min="15" max="90" value="45" step="15" oninput="calcular()">
+                        <div class="value-label" id="lblAtraso">45 días</div>
+                    </div>
+                    <div class="input-group">
+                        <label>% Retención de ISR (Ley)</label>
+                        <select id="isr" onchange="calcular()">
+                            <option value="0.05">5% (Hasta Q30,000)</option>
+                            <option value="0.07" selected>7% (Sobre el excedente)</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>% Fondo de Garantía Retenido</label>
+                        <input type="range" id="fondoGarantia" min="0" max="15" value="10" oninput="calcular()">
+                        <div class="value-label" id="lblGarantia">10%</div>
+                    </div>
                 </div>
 
-                <div class="input-group">
-                    <label>% Honorarios del Arquitecto</label>
-                    <input type="range" id="porcentajeHonorarios" min="5" max="25" value="15" oninput="calcular()">
-                    <div class="value-label" id="lblHonorarios">15%</div>
-                </div>
-
-                <div class="input-group">
-                    <label>Días de Atraso en Pagos del Cliente</label>
-                    <input type="range" id="diasAtraso" min="15" max="90" value="45" step="15" oninput="calcular()">
-                    <div class="value-label" id="lblAtraso">45 días</div>
-                </div>
-
-                <div class="input-group">
-                    <label>% Retención de ISR (Ley)</label>
-                    <select id="isr" onchange="calcular()">
-                        <option value="0.05">5% (Hasta Q30,000)</option>
-                        <option value="0.07" selected>7% (Sobre el excedente)</option>
-                    </select>
-                </div>
-
-                <div class="input-group">
-                    <label>% Fondo de Garantía Retenido</label>
-                    <input type="range" id="fondoGarantia" min="0" max="15" value="10" oninput="calcular()">
-                    <div class="value-label" id="lblGarantia">10%</div>
+                <div class="results-box">
+                    <div>
+                        <div class="results-title">Análisis de Viabilidad</div>
+                        <div class="row"><span style="color:#4b5563;">Honorarios Brutos:</span><span class="text-bold" id="resHonorarios">Q0.00</span></div>
+                        <div class="row text-red"><span>Retención ISR Estimada:</span><span id="resIsr">-Q0.00</span></div>
+                        <div class="row text-amber"><span>Fondo Garantía Congelado:</span><span id="resFondo">-Q0.00</span></div>
+                        <hr style="border:0; border-top:1px solid #bfdbfe; margin:16px 0;">
+                        <div style="display:flex; justify-content:space-between; font-size:16px; font-weight:bold;"><span style="color:#1f2937;">Utilidad Neta Inicial:</span><span id="resUtilidad">Q0.00</span></div>
+                    </div>
+                    <div class="alert-box">
+                        <p style="font-size:12px; font-weight:600; color:#92400e; text-transform:uppercase; margin:0 0 4px 0;">Fondo de Maniobra Crítico</p>
+                        <p class="alert-value" id="resManiobra">Q0.00</p>
+                        <p style="font-size:10px; color:#b45309; margin:4px 0 0 0;">Capital propio mínimo para cubrir planillas y materiales durante el atraso.</p>
+                    </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Resultados -->
-            <div class="results-box">
-                <div>
-                    <div class="results-title">Análisis de Viabilidad</div>
-                    
-                    <div class="row">
-                        <span class="text-gray">Honorarios Brutos:</span>
-                        <span class="text-bold" id="resHonorarios">Q0.00</span>
+        <!-- PESTAÑA 2: REPORTE POR VOZ -->
+        <div id="tab-reportes" class="tab-content">
+            <div class="voice-container">
+                <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 8px;">
+                    <div>
+                        <label>Nombre de la Obra / Tienda</label>
+                        <input type="text" id="nombreObra" value="Remodelación Tienda C.C. Miraflores">
                     </div>
-                    <div class="row text-red">
-                        <span>Retención ISR Estimada:</span>
-                        <span id="resIsr">-Q0.00</span>
-                    </div>
-                    <div class="row text-amber">
-                        <span>Fondo Garantía Congelado:</span>
-                        <span id="resFondo">-Q0.00</span>
-                    </div>
-                    <hr>
-                    <div class="total-row">
-                        <span>Utilidad Neta Inicial:</span>
-                        <span id="resUtilidad">Q0.00</span>
+                    <div>
+                        <label>Supervisor / Arquitecto</label>
+                        <input type="text" id="nombreArqui" value="Arq. Sergio Gómez">
                     </div>
                 </div>
-
-                <div class="alert-box">
-                    <p class="alert-title">Fondo de Maniobra Crítico</p>
-                    <p class="alert-value" id="resManiobra">Q0.00</p>
-                    <p class="alert-desc">Capital propio mínimo para cubrir planillas y materiales durante el atraso.</p>
+                
+                <label>Dictado de Bitácora (Presiona el micrófono y habla normalmente)</label>
+                <textarea id="transcripcion" placeholder="Haz clic en 'Empezar a Dictar' y habla..."></textarea>
+                
+                <div class="btn-panel">
+                    <button id="btnDictar" class="btn btn-mic" onclick="toggleDictado()">🔴 Empezar a Dictar</button>
+                    <button class="btn btn-pdf" onclick="generarPDF()">📄 Descargar PDF Formal</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            if(event && event.currentTarget) {
+                event.currentTarget.classList.add('active');
+            }
+            document.getElementById('tab-' + tabName).classList.add('active');
+        }
+
         function calcular() {
             const costoTotal = parseFloat(document.getElementById('costoTotal').value) || 0;
             const pctHonorarios = parseFloat(document.getElementById('porcentajeHonorarios').value) / 100;
@@ -226,22 +279,12 @@
             document.getElementById('lblGarantia').innerText = (pctGarantia * 100) + '%';
 
             const honorariosBrutos = costoTotal * pctHonorarios;
-            
-            // Cálculo del ISR Guatemalteco sobre la factura total (Régimen Opcional Simplificado)
-            let retencionIsr = 0;
-            if (costoTotal > 30000) {
-                retencionIsr = (30000 * 0.05) + ((costoTotal - 30000) * pctIsr);
-            } else {
-                retencionIsr = costoTotal * 0.05;
-            }
-
+            let retencionIsr = costoTotal > 30000 ? (30000 * 0.05) + ((costoTotal - 30000) * pctIsr) : costoTotal * 0.05;
             const retencionGarantia = costoTotal * pctGarantia;
             const utilidadNeta = honorariosBrutos - retencionIsr - retencionGarantia;
 
-            // Fondo de maniobra: costo operativo total distribuido en 60 días de obra estándar, multiplicado por los días de atraso
             const costoOperativoObra = costoTotal - honorariosBrutos;
-            const costoPorDia = costoOperativoObra / 60; 
-            const fondoManiobra = costoPorDia * diasAtraso;
+            const fondoManiobra = (costoOperativoObra / 60) * diasAtraso;
 
             const formatoMoneda = new Intl.NumberFormat('es-GT', { style: 'currency', currency: 'GTQ' });
 
@@ -249,18 +292,91 @@
             document.getElementById('resIsr').innerText = '-' + formatoMoneda.format(retencionIsr);
             document.getElementById('resFondo').innerText = '-' + formatoMoneda.format(retencionGarantia);
             
-            // Estilo visual si la utilidad neta es negativa (pérdida de flujo de caja inicial)
             const elUtilidad = document.getElementById('resUtilidad');
             elUtilidad.innerText = formatoMoneda.format(utilidadNeta);
-            if(utilidadNeta < 0) {
-                elUtilidad.style.color = '#dc2626';
-            } else {
-                elUtilidad.style.color = '#10b981';
-            }
+            elUtilidad.style.color = utilidadNeta < 0 ? '#dc2626' : '#10b981';
 
             document.getElementById('resManiobra').innerText = formatoMoneda.format(fondoManiobra);
         }
 
+        // Configuración de la IA de voz nativa del navegador
+        let reconocimiento;
+        let grabacionActiva = false;
+
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            reconocimiento = new SpeechRecognition();
+            reconocimiento.continuous = true;
+            reconocimiento.interimResults = true;
+            reconocimiento.lang = 'es-GT';
+
+            reconocimiento.onresult = (event) => {
+                let textoFinal = '';
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        textoFinal += event.results[i].transcript + ' ';
+                    }
+                }
+                if(textoFinal) {
+                    document.getElementById('transcripcion').value += textoFinal;
+                }
+            };
+        }
+
+        function toggleDictado() {
+            const btn = document.getElementById('btnDictar');
+            if (!reconocimiento) {
+                alert("El dictado no está soportado en este navegador. Usa Google Chrome o Safari.");
+                return;
+            }
+
+            if (!grabacionActiva) {
+                reconocimiento.start();
+                grabacionActiva = true;
+                btn.innerText = "🟢 Grabando... (Clic para detener)";
+                btn.classList.add('recording');
+            } else {
+                reconocimiento.stop();
+                grabacionActiva = false;
+                btn.innerText = "🔴 Empezar a Dictar";
+                btn.classList.remove('recording');
+            }
+        }
+
+        function generarPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            const obra = document.getElementById('nombreObra').value;
+            const arqui = document.getElementById('nombreArqui').value;
+            const texto = document.getElementById('transcripcion').value;
+            const fecha = new Date().toLocaleDateString('es-GT');
+
+            // Formato e impresión en el documento PDF
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(18);
+            doc.text("BITÁCORA FORMAL DE OBRA", 14, 20);
+            
+            doc.setFontSize(10);
+            doc.setFont("helvetica", "normal");
+            doc.text(`Fecha: ${fecha}`, 14, 28);
+            doc.text(`Proyecto: ${obra}`, 14, 34);
+            doc.text(`Responsable: ${arqui}`, 14, 40);
+            
+            doc.setLineWidth(0.5);
+            doc.line(14, 45, 196, 45);
+
+            doc.setFont("helvetica", "bold");
+            doc.text("Detalles y Observaciones de la Obra:", 14, 55);
+            
+            doc.setFont("helvetica", "normal");
+            const lineasTexto = doc.splitTextToSize(texto || "No se registraron anotaciones.", 180);
+            doc.text(lineasTexto, 14, 63);
+
+            doc.save(`Reporte_Obra_${obra.replace(/\s+/g, '_')}.pdf`);
+        }
+
+        // Ejecución automática inicial
         calcular();
     </script>
 </body>
